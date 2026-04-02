@@ -1,0 +1,82 @@
+{
+    "name": "@kdtlabs/logger",
+    "type": "module",
+    "version": "0.0.0",
+    "description": "A simple logging library",
+    "author": "Diep Dang <kdt310722@gmail.com>",
+    "license": "MIT",
+    "homepage": "https://github.com/kdtlabs/logger",
+    "repository": "github:kdtlabs/logger",
+    "bugs": {
+        "url": "https://github.com/kdtlabs/logger/issues",
+        "email": "kdt310722@gmail.com"
+    },
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./drizzle": {
+            "types": "./dist/integrations/drizzle.d.ts",
+            "default": "./dist/integrations/drizzle.js"
+        },
+        "./hono": {
+            "types": "./dist/integrations/hono.d.ts",
+            "default": "./dist/integrations/hono.js"
+        }
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "src"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "rimraf dist && bun run scripts/build.ts && tsc --project tsconfig.build.json",
+        "release": "bun run build && bun run scripts/release.ts && bunx npm publish",
+        "coverage": "bun test --coverage",
+        "lint": "eslint",
+        "lint:fix": "eslint --fix",
+        "typecheck": "tsc --noEmit",
+        "up": "taze -I --group --force --peer",
+        "up:stable": "bun run up --maturity-period 7",
+        "preinstall": "only-allow bun && ([ -d .git ] && simple-git-hooks || true)"
+    },
+    "dependencies": {
+        "@kdtlabs/utils": "^0.0.9",
+        "clean-stack": "^6.0.0",
+        "picocolors": "^1.1.1"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^20.5.0",
+        "@commitlint/config-conventional": "^20.5.0",
+        "@kdtlabs/eslint-config": "^0.0.4",
+        "@types/bun": "^1.3.11",
+        "@types/node": "^25.5.0",
+        "changelogen": "^0.6.2",
+        "drizzle-orm": "^0.45.2",
+        "eslint": "^10.1.0",
+        "hono": "^4.12.9",
+        "lint-staged": "^16.4.0",
+        "mitata": "^1.0.34",
+        "only-allow": "^1.2.2",
+        "rimraf": "^6.1.3",
+        "simple-git-hooks": "^2.13.1",
+        "taze": "^19.11.0",
+        "typescript": "^6.0.2"
+    },
+    "simple-git-hooks": {
+        "commit-msg": "bunx --no -- commitlint --edit ${1}",
+        "pre-commit": "bunx lint-staged && bun run typecheck"
+    },
+    "lint-staged": {
+        "*": "bun run lint:fix"
+    },
+    "commitlint": {
+        "extends": "@commitlint/config-conventional"
+    }
+}
