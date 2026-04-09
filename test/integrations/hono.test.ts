@@ -411,6 +411,121 @@ describe('createHonoLogger', () => {
         })
     })
 
+    // ── Enabled ──
+    describe('enabled', () => {
+        test('logs when enabled returns true', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { enabled: () => true })
+
+            await app.request('/path')
+
+            expect(logSpy).toHaveBeenCalledTimes(1)
+        })
+
+        test('skips logging when enabled returns false', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { enabled: () => false })
+
+            await app.request('/path')
+
+            expect(logSpy).not.toHaveBeenCalled()
+        })
+
+        test('still calls next() when enabled returns false', async () => {
+            const { logger } = makeLogger()
+            const app = new Hono()
+
+            app.use(createHonoLogger(logger, { enabled: () => false }))
+
+            let handlerCalled = false
+
+            app.get('/path', (c) => {
+                handlerCalled = true
+
+                return c.text('ok')
+            })
+
+            const res = await app.request('/path')
+
+            expect(handlerCalled).toBe(true)
+            expect(res.status).toBe(200)
+        })
+
+        test('receives logger and context as arguments', async () => {
+            const { logger } = makeLogger()
+            let receivedLogger: unknown
+            let receivedPath: string | undefined
+
+            const app = makeApp(logger, {
+                enabled: (l, c) => {
+                    receivedLogger = l
+                    receivedPath = c.req.path
+
+                    return true
+                },
+            })
+
+            await app.request('/path')
+
+            expect(receivedLogger).toBe(logger)
+            expect(receivedPath).toBe('/path')
+        })
+
+        test('runs before filter', async () => {
+            const { logger, logSpy } = makeLogger()
+            const order: string[] = []
+
+            const app = makeApp(logger, {
+                enabled: () => {
+                    order.push('enabled')
+
+                    return false
+                },
+                filter: () => {
+                    order.push('filter')
+
+                    return true
+                },
+            })
+
+            await app.request('/path')
+
+            expect(order).toEqual(['enabled'])
+            expect(logSpy).not.toHaveBeenCalled()
+        })
+
+        test('does not increment request counter when disabled', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { enabled: (l) => l.isEnabled })
+
+            logger.disable()
+            await app.request('/path')
+            logger.enable()
+            await app.request('/path')
+
+            expect(logSpy).toHaveBeenCalledTimes(1)
+            expect(logSpy.mock.calls[0]![1]).toBe('GET /path 200 #1')
+        })
+
+        test('skips both entries in double mode when disabled', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { mode: 'double', enabled: () => false })
+
+            await app.request('/path')
+
+            expect(logSpy).not.toHaveBeenCalled()
+        })
+
+        test('logs normally when no enabled option is provided', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger)
+
+            await app.request('/path')
+
+            expect(logSpy).toHaveBeenCalledTimes(1)
+        })
+    })
+
     // ── Filter ──
     describe('filter', () => {
         test('logs when filter returns true', async () => {
