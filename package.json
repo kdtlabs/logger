@@ -47,7 +47,7 @@
         "preinstall": "only-allow bun && ([ -d .git ] && simple-git-hooks || true)"
     },
     "dependencies": {
-        "@kdtlabs/utils": "^0.0.9",
+        "@kdtlabs/utils": "^0.0.12",
         "clean-stack": "^6.0.0",
         "picocolors": "^1.1.1"
     },
@@ -56,11 +56,11 @@
         "@commitlint/config-conventional": "^20.5.0",
         "@kdtlabs/eslint-config": "^0.0.4",
         "@types/bun": "^1.3.11",
-        "@types/node": "^25.5.0",
+        "@types/node": "^25.5.2",
         "changelogen": "^0.6.2",
         "drizzle-orm": "^0.45.2",
-        "eslint": "^10.1.0",
-        "hono": "^4.12.9",
+        "eslint": "^10.2.0",
+        "hono": "^4.12.12",
         "lint-staged": "^16.4.0",
         "mitata": "^1.0.34",
         "only-allow": "^1.2.2",
