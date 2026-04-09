@@ -411,6 +411,107 @@ describe('createHonoLogger', () => {
         })
     })
 
+    // ── Filter ──
+    describe('filter', () => {
+        test('logs when filter returns true', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { filter: () => true })
+
+            await app.request('/path')
+
+            expect(logSpy).toHaveBeenCalledTimes(1)
+        })
+
+        test('skips logging when filter returns false', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { filter: () => false })
+
+            await app.request('/path')
+
+            expect(logSpy).not.toHaveBeenCalled()
+        })
+
+        test('still calls next() when filter returns false', async () => {
+            const { logger } = makeLogger()
+            const app = new Hono()
+
+            app.use(createHonoLogger(logger, { filter: () => false }))
+
+            let handlerCalled = false
+
+            app.get('/path', (c) => {
+                handlerCalled = true
+
+                return c.text('ok')
+            })
+
+            const res = await app.request('/path')
+
+            expect(handlerCalled).toBe(true)
+            expect(res.status).toBe(200)
+        })
+
+        test('filters by path', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { filter: (c) => c.req.path !== '/other' })
+
+            await app.request('/path')
+            await app.request('/other')
+
+            expect(logSpy).toHaveBeenCalledTimes(1)
+            expect(logSpy.mock.calls[0]![1]).toBe('GET /path 200 #1')
+        })
+
+        test('filters by method', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { filter: (c) => c.req.method === 'POST' })
+
+            await app.request('/path')
+            await app.request('/submit', { method: 'POST' })
+
+            expect(logSpy).toHaveBeenCalledTimes(1)
+            expect(logSpy.mock.calls[0]![1]).toBe('POST /submit 200 #1')
+        })
+
+        test('skips both entries in double mode when filter returns false', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { mode: 'double', filter: () => false })
+
+            await app.request('/path')
+
+            expect(logSpy).not.toHaveBeenCalled()
+        })
+
+        test('logs both entries in double mode when filter returns true', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { mode: 'double', filter: () => true })
+
+            await app.request('/path')
+
+            expect(logSpy).toHaveBeenCalledTimes(2)
+        })
+
+        test('does not increment request counter when filtered out', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger, { filter: (c) => c.req.path !== '/other' })
+
+            await app.request('/other')
+            await app.request('/path')
+
+            expect(logSpy).toHaveBeenCalledTimes(1)
+            expect(logSpy.mock.calls[0]![1]).toBe('GET /path 200 #1')
+        })
+
+        test('logs normally when no filter is provided', async () => {
+            const { logger, logSpy } = makeLogger()
+            const app = makeApp(logger)
+
+            await app.request('/path')
+
+            expect(logSpy).toHaveBeenCalledTimes(1)
+        })
+    })
+
     // ── Callback error handling ──
     describe('callback error handling', () => {
         test('requestMetadata throwing returns empty metadata, no crash', async () => {

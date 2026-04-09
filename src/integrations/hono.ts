@@ -9,6 +9,7 @@ import { metadata } from '../transformers/resolve'
 export type HonoLoggerLogType = 'request' | 'response'
 
 export interface HonoLoggerOptions {
+    filter?: (context: Context) => boolean
     level?: LogLevelType
     levelResolver?: (type: HonoLoggerLogType, context: Context) => LogLevelType | undefined
     mode?: 'double' | 'single'
@@ -17,7 +18,7 @@ export interface HonoLoggerOptions {
 }
 
 export function createHonoLogger(logger: Logger, options: HonoLoggerOptions = {}): MiddlewareHandler {
-    const { level = LogLevel.Info, mode = 'single', levelResolver, requestMetadata, responseMetadata } = options
+    const { filter, level = LogLevel.Info, mode = 'single', levelResolver, requestMetadata, responseMetadata } = options
 
     const requestMetadataFn = requestMetadata ?? (() => ({}))
     const responseMetadataFn = responseMetadata ?? (() => ({}))
@@ -26,6 +27,12 @@ export function createHonoLogger(logger: Logger, options: HonoLoggerOptions = {}
     let requestCounter = 0
 
     return createMiddleware(async (c, next) => {
+        if (filter && !filter(c)) {
+            await next()
+
+            return
+        }
+
         const start = process.hrtime.bigint()
         const requestId = ++requestCounter
         const requestMetadata_ = tryCatch(() => requestMetadataFn(c), {})
