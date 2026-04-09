@@ -115,7 +115,7 @@ Framework-specific middleware that pipes structured logging through the `@kdtlab
 
 **hono.ts** — `createHonoLogger(logger, options?)`: Hono middleware factory. Logs HTTP requests/responses with configurable single (one entry after response) or double (incoming + outgoing) mode. Uses `timer()` for duration tracking and `metadata()` for entry injection. Options: `mode`, `level`, `levelResolver(type, context)`, `requestMetadata(context)`, `responseMetadata(context)`. Exports `HonoLoggerOptions` interface and `HonoLoggerLogType` union type.
 
-**drizzle.ts** — `createDrizzleLogger(logger, options?)`: Implements DrizzleORM's `Logger` interface to pipe SQL query logs through the pipeline. Calls `logger.log(level, query, params)` — query string becomes `message`, params become `data`. Default level: `Debug`. Exports `DrizzleLogger` class and `DrizzleLoggerOptions` interface.
+**drizzle.ts** — `createDrizzleLogger(logger, options?)`: Implements DrizzleORM's `Logger` interface to pipe SQL query logs through the pipeline. Calls `logger.log(level, query, params)` — query string becomes `message`, params become `data` (omitted when empty). Default level: `Debug`. Exports `DrizzleLogger` class, `DrizzleLoggerOptions` interface, `DrizzleContextOptions` interface, and `withDrizzleContext(options, fn)` — scoped context via `AsyncLocalStorage` that overrides `logger`, `level`, and/or `metadata` for all `DrizzleLogger.logQuery` calls within the callback. Metadata is applied via `logger.with(metadata)`. Supports sync and async callbacks, nested contexts, and transparent fallback to instance defaults when options are omitted.
 
 ## Error Handling (`src/error.ts`)
 
