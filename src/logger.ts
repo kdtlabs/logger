@@ -55,6 +55,10 @@ export class Logger extends BaseLogger {
         return this.levelNamesMap[level]
     }
 
+    public isLogLevelEnabled(level: LogLevelType) {
+        return this.isLevelEnabled(this.getLevel(level))
+    }
+
     public child({ filters = [], mergeFilters = true, mergeTransformers = true, metadata = {}, name, nameSeparator = ':', transformers = [], ...options }: ChildLoggerOptions = {}) {
         const childOptions = {
             ...options,

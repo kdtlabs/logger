@@ -317,4 +317,55 @@ describe('Logger', () => {
 
         expect(transport).toHaveBeenCalledTimes(2)
     })
+
+    // ── isLogLevelEnabled() ──
+    describe('isLogLevelEnabled', () => {
+        test('returns true for levels at or above current level', () => {
+            const { logger } = makeLogger({ level: 'info' })
+
+            expect(logger.isLogLevelEnabled('info')).toBe(true)
+            expect(logger.isLogLevelEnabled('warn')).toBe(true)
+            expect(logger.isLogLevelEnabled('error')).toBe(true)
+            expect(logger.isLogLevelEnabled('fatal')).toBe(true)
+        })
+
+        test('returns false for levels below current level', () => {
+            const { logger } = makeLogger({ level: 'info' })
+
+            expect(logger.isLogLevelEnabled('trace')).toBe(false)
+            expect(logger.isLogLevelEnabled('debug')).toBe(false)
+        })
+
+        test('accepts enum level', () => {
+            const { logger } = makeLogger({ level: 'warn' })
+
+            expect(logger.isLogLevelEnabled(LogLevel.Warn)).toBe(true)
+            expect(logger.isLogLevelEnabled(LogLevel.Info)).toBe(false)
+        })
+
+        test('returns false when logger is disabled', () => {
+            const { logger } = makeLogger({ level: 'trace' })
+
+            logger.disable()
+
+            expect(logger.isLogLevelEnabled('trace')).toBe(false)
+        })
+
+        test('returns true after re-enabling logger', () => {
+            const { logger } = makeLogger({ level: 'trace' })
+
+            logger.disable()
+            logger.enable()
+
+            expect(logger.isLogLevelEnabled('trace')).toBe(true)
+        })
+
+        test('respects parent level on child logger', () => {
+            const { logger } = makeLogger({ level: 'warn' })
+            const child = logger.child({ name: 'child' })
+
+            expect(child.isLogLevelEnabled('info')).toBe(false)
+            expect(child.isLogLevelEnabled('warn')).toBe(true)
+        })
+    })
 })

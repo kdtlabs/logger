@@ -46,6 +46,7 @@ User-facing class. Adds named levels, metadata, child loggers.
 - `constructor(transport, options)` — sets level, metadata (`hostname`, `pid`), filters, transformers
 - `getLevel(level)` — resolves `LogLevelType` (enum or string name) to numeric value
 - `getLevelName(level)` — resolves numeric level to string name
+- `isLogLevelEnabled(level)` — public check whether a `LogLevelType` would pass level gating (resolves level, delegates to `isLevelEnabled`)
 - `trace/debug/info/warn/error/fatal/notice(...args)` — convenience methods calling `log()`
 - `log(level, ...args)` — resolves level, early-exits via `isLevelEnabled`, then builds `LogEntry` from args (string message, lazy message, or raw data)
 - `child(options)` — creates child with inherited/merged filters, transformers, metadata, concatenated name
