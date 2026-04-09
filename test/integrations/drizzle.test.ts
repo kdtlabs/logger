@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test'
 import { LogLevel } from '../../src/constants'
 import { createDrizzleLogger, DrizzleLogger, withDrizzleContext } from '../../src/integrations/drizzle'
-import { Logger } from '../../src/logger'
+import { Logger, LOGGER_LAZY_MESSAGE } from '../../src/logger'
 
 const makeLogger = () => {
     const transport = mock()
@@ -115,6 +115,68 @@ describe('createDrizzleLogger', () => {
             expect(logSpy.mock.calls[1]![1]).toBe('SELECT 2')
             expect(logSpy.mock.calls[2]![1]).toBe('SELECT 3')
         })
+    })
+})
+
+describe('trim option', () => {
+    test('trims whitespace from query when enabled', () => {
+        const { logger, logSpy } = makeLogger()
+        const drizzleLogger = createDrizzleLogger(logger, { trim: true })
+
+        drizzleLogger.logQuery('  SELECT 1  ', [])
+
+        const msg = logSpy.mock.calls[0]![1]
+
+        expect(msg[LOGGER_LAZY_MESSAGE]).toBe(true)
+        expect(msg.toString()).toBe('SELECT 1')
+    })
+
+    test('trims tabs and newlines from query when enabled', () => {
+        const { logger, logSpy } = makeLogger()
+        const drizzleLogger = createDrizzleLogger(logger, { trim: true })
+
+        drizzleLogger.logQuery('\n\tSELECT 1\n\t', [])
+
+        expect(logSpy.mock.calls[0]![1].toString()).toBe('SELECT 1')
+    })
+
+    test('does not trim when disabled', () => {
+        const { logger, logSpy } = makeLogger()
+        const drizzleLogger = createDrizzleLogger(logger)
+
+        drizzleLogger.logQuery('  SELECT 1  ', [])
+
+        expect(logSpy.mock.calls[0]![1]).toBe('  SELECT 1  ')
+    })
+
+    test('does not trim when explicitly set to false', () => {
+        const { logger, logSpy } = makeLogger()
+        const drizzleLogger = createDrizzleLogger(logger, { trim: false })
+
+        drizzleLogger.logQuery('  SELECT 1  ', [])
+
+        expect(logSpy.mock.calls[0]![1]).toBe('  SELECT 1  ')
+    })
+
+    test('trims query inside withDrizzleContext', () => {
+        const { logger } = makeLogger()
+        const { logger: contextLogger, logSpy: contextLogSpy } = makeLogger()
+        const drizzleLogger = createDrizzleLogger(logger, { trim: true })
+
+        withDrizzleContext({ logger: contextLogger }, () => {
+            drizzleLogger.logQuery('\n  SELECT 1  \n', [])
+        })
+
+        expect(contextLogSpy.mock.calls[0]![1].toString()).toBe('SELECT 1')
+    })
+
+    test('leaves inner whitespace intact', () => {
+        const { logger, logSpy } = makeLogger()
+        const drizzleLogger = createDrizzleLogger(logger, { trim: true })
+
+        drizzleLogger.logQuery('  SELECT *  FROM  users  ', [])
+
+        expect(logSpy.mock.calls[0]![1].toString()).toBe('SELECT *  FROM  users')
     })
 })
 
