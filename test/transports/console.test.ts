@@ -1,5 +1,6 @@
 import type { LogEntry } from '../../src/types'
 import { describe, expect, mock, test } from 'bun:test'
+import pc from 'picocolors'
 import { LOGGER_TIMER } from '../../src/formatters'
 import { createConsoleTransport, createDefaultConsoleFormatter } from '../../src/transports/console'
 
@@ -121,5 +122,47 @@ describe('createDefaultConsoleFormatter', () => {
 
         expect(result.metadata).toEqual({ service: 'api', version: 2 })
         expect(result.metadata).not.toHaveProperty('timer')
+    })
+
+    test('strips ANSI codes from message', () => {
+        const formatter = createDefaultConsoleFormatter()
+        const entry = makeEntry({ message: pc.red('error occurred') })
+        const result = JSON.parse(formatter(entry))
+
+        expect(result.message).toBe('error occurred')
+    })
+
+    test('strips nested ANSI codes from message', () => {
+        const formatter = createDefaultConsoleFormatter()
+        const entry = makeEntry({ message: pc.bold(pc.yellow('warning')) })
+        const result = JSON.parse(formatter(entry))
+
+        expect(result.message).toBe('warning')
+    })
+
+    test('preserves message without ANSI codes', () => {
+        const formatter = createDefaultConsoleFormatter()
+        const entry = makeEntry({ message: 'plain text' })
+        const result = JSON.parse(formatter(entry))
+
+        expect(result.message).toBe('plain text')
+    })
+
+    test('does not strip ANSI from non-message fields', () => {
+        const formatter = createDefaultConsoleFormatter()
+        const entry = makeEntry({ message: pc.red('colored'), metadata: { key: 'value' } })
+        const result = JSON.parse(formatter(entry))
+
+        expect(result.message).toBe('colored')
+        expect(result.metadata.key).toBe('value')
+    })
+
+    test('handles entry without message', () => {
+        const formatter = createDefaultConsoleFormatter()
+        const entry = makeEntry({ data: ['some data'] })
+        const result = JSON.parse(formatter(entry))
+
+        expect(result.message).toBeUndefined()
+        expect(result.data).toEqual(['some data'])
     })
 })

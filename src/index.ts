@@ -5,6 +5,7 @@ export * from './filters'
 export * from './formatters'
 export * from './logger'
 export * from './non-blocking-logger'
+export * from './styles'
 export * from './transformers'
 export * from './transports'
 

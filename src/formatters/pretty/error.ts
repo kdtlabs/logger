@@ -2,6 +2,7 @@ import type { Options as CleanStackOptions } from 'clean-stack'
 import type { Colors } from 'picocolors/types'
 import { filter, indent, isEmptyObject, normalizeError, resolveOptions } from '@kdtlabs/utils'
 import clean from 'clean-stack'
+import { badge as badgeStyle, bold as boldStyle, muted, text } from '../../styles'
 
 export interface ErrorPrettyOptions {
     badge?: boolean
@@ -18,8 +19,8 @@ export function createErrorPretty(c: Colors, { badge = true, indent: _indent = 2
 
     const pretty = (error: Error, indent_: number, showBadge: boolean, depth: number) => {
         const errCode = 'code' in error && error.code ? ` (${String(error.code)})` : ''
-        const label = c.bold(c.whiteBright(`${error.name}${errCode}`))
-        const errType = showBadge ? c.bgRed(` ${label} `) : `[${label}]`
+        const label = boldStyle(text(`${error.name}${errCode}`, c), c)
+        const errType = showBadge ? badgeStyle(label, c) : `[${label}]`
 
         let stack = ''
 
@@ -29,7 +30,7 @@ export function createErrorPretty(c: Colors, { badge = true, indent: _indent = 2
             const firstAt = lines.findIndex((l) => l.trimStart().startsWith('at '))
 
             if (firstAt !== -1) {
-                stack = c.dim(indent(lines.slice(firstAt).join('\n'), indent_, true))
+                stack = muted(indent(lines.slice(firstAt).join('\n'), indent_, true), c)
             }
         }
 

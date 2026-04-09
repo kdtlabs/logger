@@ -91,7 +91,7 @@ Symbols: `LOGGER_LAZY_DATA`, `LOGGER_METADATA`.
 
 ### Transports (`src/transports/`)
 
-**console.ts** — `createConsoleTransport(options)`: writes formatted entry to a stream (default `stdout`). Also exports `createDefaultConsoleFormatter(options?)` — JSON serialization with bigint and timer support, used as default formatter.
+**console.ts** — `createConsoleTransport(options)`: writes formatted entry to a stream (default `stdout`). Also exports `createDefaultConsoleFormatter(options?)` — JSON serialization with bigint and timer support, used as default formatter. Strips ANSI escape codes from `message` before serialization via `stripAnsi`.
 
 **combine.ts** — `createCombineTransport(transports, options)`: fans out to multiple named transports. Handles errors per-transport. Failing transports are recorded in `LOGGER_EXCLUDE_TRANSPORTS` metadata — subsequent calls skip them if the same entry is reused. Exports `excludeTransports(names)` helper and `getExcludedTransports(entry)` reader.
 
@@ -120,6 +120,19 @@ Framework-specific middleware that pipes structured logging through the `@kdtlab
 ## Error Handling (`src/error.ts`)
 
 `LoggerError` extends `BaseError` from `@kdtlabs/utils`. Wraps the original `LogEntry` that caused the error.
+
+## Styles (`src/styles.ts`)
+
+Semantic text formatting utils built on `picocolors`. Each accepts an optional second `Colors` parameter (defaults to global `pc`), allowing pretty formatter to pass its color-aware instance.
+
+- `text(str, colors?)` — `whiteBright`
+- `highlight(str, colors?)` — `bold(yellow())`
+- `muted(str, colors?)` — `dim`
+- `accent(str, colors?)` — `magenta`
+- `badge(str, colors?)` — `bgRed(bold(whiteBright()))` with space padding
+- `bold(str, colors?)` — `bold`
+
+Used internally by pretty formatter and error formatter. Exported for callers to format log messages with consistent styling.
 
 ## Key Patterns
 

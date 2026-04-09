@@ -2,6 +2,7 @@ import type { LogEntry } from '../../types'
 import { formatDate, humanizeNanoseconds, isString, isSymbol, map, truncateMiddle } from '@kdtlabs/utils'
 import pc from 'picocolors'
 import { LOG_LEVEL_FORMATS } from '../../constants'
+import { accent, muted, text } from '../../styles'
 import { metadata } from '../../transformers'
 import { createDataPrettier, type DataPrettierOptions } from './data'
 import { createErrorPretty, type ErrorPrettyOptions } from './error'
@@ -32,11 +33,11 @@ export function createPrettyFormatter(options: PrettyFormatterOptions = {}) {
 
     const maxNameLength = truncateName === true ? 20 : truncateName
     const compiledName: Record<string, string> = {}
-    const pid = showPid ? cl.dim(` (${process.pid})`) : ''
+    const pid = showPid ? muted(` (${process.pid})`, cl) : ''
 
-    const formatTime = (timestamp: Date) => cl.dim(`[${formatDate(timestamp, timeFormat)}]`)
-    const formatName = (name: string) => compiledName[name] ??= cl.dim(` ${maxNameLength === false ? name : truncateMiddle(name, maxNameLength)}`)
-    const formatTimer = (result: bigint) => cl.dim(cl.magenta(` ${humanizeNanoseconds(result)}`))
+    const formatTime = (timestamp: Date) => muted(`[${formatDate(timestamp, timeFormat)}]`, cl)
+    const formatName = (name: string) => compiledName[name] ??= muted(` ${maxNameLength === false ? name : truncateMiddle(name, maxNameLength)}`, cl)
+    const formatTimer = (result: bigint) => muted(accent(` ${humanizeNanoseconds(result)}`, cl), cl)
 
     const formatData = createDataPrettier(inspect)
     const formatError = createErrorPretty(cl, { ...errorOptions, dataFormatter: formatData })
@@ -86,7 +87,7 @@ export function createPrettyFormatter(options: PrettyFormatterOptions = {}) {
         let hasMessage = false
 
         if (entry.message?.length) {
-            message += ` ${cl.whiteBright(entry.message)}`
+            message += ` ${text(entry.message, cl)}`
             hasMessage = true
         }
 
