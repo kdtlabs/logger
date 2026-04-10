@@ -41,7 +41,7 @@ export function createErrorPretty(c: Colors, { badge = true, indent: _indent = 2
             const nextIndent = indent_ + _indent
             const nextDepth = depth + 1
 
-            if (error !== error.cause) {
+            if (error.cause !== undefined && error !== error.cause) {
                 subError = `\n${pad}${pretty(normalizeError(error.cause), nextIndent, showBadge, nextDepth)}`
             }
 
