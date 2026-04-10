@@ -25,7 +25,7 @@ export function createErrorPretty(c: Colors, { badge = true, indent: _indent = 2
         let stack = ''
 
         if (error.stack) {
-            const raw = cleanStackOptions.enabled ? error.stack : clean(error.stack, cleanStackOptions)
+            const raw = cleanStackOptions.enabled ? clean(error.stack, cleanStackOptions) : error.stack
             const lines = raw.split('\n')
             const firstAt = lines.findIndex((l) => l.trimStart().startsWith('at '))
 
