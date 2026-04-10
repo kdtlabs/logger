@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.3
+
+[compare changes](https://github.com/kdtlabs/logger/compare/v0.0.2...v0.0.3)
+
+### 🩹 Fixes
+
+- **pretty:** Invert cleanStack enabled condition so clean-stack actually runs ([5f9b862](https://github.com/kdtlabs/logger/commit/5f9b862))
+
+### ❤️ Contributors
+
+- Diep Dang <kdt310722@gmail.com>
+
 ## v0.0.2
 
 [compare changes](https://github.com/kdtlabs/logger/compare/v0.0.1...v0.0.2)
