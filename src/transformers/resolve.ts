@@ -1,5 +1,5 @@
 import type { LogEntry } from '../types'
-import { type AnyObject, isObject } from '@kdtlabs/utils'
+import { type AnyObject, isError, isObject } from '@kdtlabs/utils'
 
 export const LOGGER_LAZY_DATA = Symbol.for('logger.lazy-data')
 export const LOGGER_METADATA = Symbol.for('logger.metadata')
@@ -34,7 +34,7 @@ export const createResolveTransformer = ({ errors = true }: ResolveTransformerOp
 
             if (isObject(resolved) && isMetadata(resolved)) {
                 Object.assign(entry.metadata, resolved.metadata)
-            } else if (errors && resolved instanceof Error) {
+            } else if (errors && isError(resolved)) {
                 errors_ ??= []
                 errors_.push(resolved)
             } else {

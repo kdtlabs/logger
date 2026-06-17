@@ -1,13 +1,12 @@
 import type { AsyncLogTransport, AsyncTransportError } from '../../src/transports/async'
 import type { LogEntry } from '../../src/types'
+import { sleep } from '@kdtlabs/utils'
 import { describe, expect, mock, test } from 'bun:test'
 import { createAsyncTransport } from '../../src/transports/async'
 
 const makeEntry = (overrides: Partial<LogEntry> = {}): LogEntry => ({
     timestamp: Date.now(), level: 30, data: [], metadata: {}, ...overrides,
 })
-
-const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 const createConcurrencyTransport = (state: { maxConcurrent: number, running: number }): AsyncLogTransport => async () => {
     state.running++
@@ -230,6 +229,32 @@ describe('createAsyncTransport', () => {
         expect(errors[0]!.transport).toBe('t1')
         expect(errors[0]!.error).toBeInstanceOf(Error)
         expect((errors[0]!.error as Error).message).toBe('t1 failed')
+        expect(receivedEntry).toBe(entry)
+        expect(receivedLogger).toBe(logger)
+    })
+
+    test('calls onError when transport throws synchronously', async () => {
+        const onError = mock()
+
+        const t1: AsyncLogTransport = () => {
+            throw new Error('sync fail')
+        }
+
+        const { transport, flush } = createAsyncTransport({ t1 }, { onError })
+        const entry = makeEntry()
+        const logger = { id: 'test' }
+
+        transport(entry, logger)
+        await flush()
+
+        expect(onError).toHaveBeenCalledTimes(1)
+
+        const [errors, receivedEntry, receivedLogger] = onError.mock.calls[0]! as [AsyncTransportError[], LogEntry, unknown]
+
+        expect(errors).toHaveLength(1)
+        expect(errors[0]!.transport).toBe('t1')
+        expect(errors[0]!.error).toBeInstanceOf(Error)
+        expect((errors[0]!.error as Error).message).toBe('sync fail')
         expect(receivedEntry).toBe(entry)
         expect(receivedLogger).toBe(logger)
     })

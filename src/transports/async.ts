@@ -1,5 +1,5 @@
 import type { LogEntry, LogTransport } from '../types'
-import { chunk, createDeferred, type DeferredPromise, entries, tryCatch, withTimeout } from '@kdtlabs/utils'
+import { chunk, createDeferred, type DeferredPromise, entries, tryCatch, tryCatchAsync, withTimeout } from '@kdtlabs/utils'
 
 export type AsyncLogTransport<T = unknown> = (entry: LogEntry, logger: T) => Promise<void>
 
@@ -33,7 +33,7 @@ async function process<T>(chunks: Array<Array<[string, AsyncLogTransport<T>]>>, 
 
     for (const transports of chunks) {
         await Promise.allSettled(transports.map(async ([name, transport]) => {
-            await withTimeout(transport(entry, logger), timeout).catch((error) => onTransportError(name, error))
+            await tryCatchAsync(() => withTimeout(transport(entry, logger), timeout), (error) => onTransportError(name, error))
         }))
     }
 

@@ -1,9 +1,9 @@
 import { exists } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
+import { ensurePrefix, pwd } from '@kdtlabs/utils'
 import { $ } from 'bun'
 
-const rootPath = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const rootPath = pwd(import.meta, '..')
 const gitPath = resolve(rootPath, '.git')
 
 if (!(await exists(gitPath))) {
@@ -28,7 +28,7 @@ console.log('📦 Staging changes...')
 await $`git -C ${rootPath} add -A`
 
 const pkg = await Bun.file(resolve(rootPath, 'package.json')).json()
-const version = `v${pkg.version.replace(/^v/u, '')}`
+const version = ensurePrefix(pkg.version, 'v')
 
 await $`git -C ${rootPath} commit -m "chore(release): ${version}"`
 await $`git -C ${rootPath} tag -am ${version} ${version}`
