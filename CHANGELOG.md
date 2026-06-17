@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.0.4
+
+[compare changes](https://github.com/kdtlabs/logger/compare/v0.0.3...v0.0.4)
+
+### 🩹 Fixes
+
+- Prevent recursive cause formatting ([7867f25](https://github.com/kdtlabs/logger/commit/7867f25))
+- Preserve error data indentation ([f324037](https://github.com/kdtlabs/logger/commit/f324037))
+- **async:** Handle synchronous transport errors ([95febfd](https://github.com/kdtlabs/logger/commit/95febfd))
+
+### 🏡 Chore
+
+- Update dependencies and lint config ([e8d9750](https://github.com/kdtlabs/logger/commit/e8d9750))
+
+### ❤️ Contributors
+
+- Diep Dang <kdt310722@gmail.com>
+
 ## v0.0.3
 
 [compare changes](https://github.com/kdtlabs/logger/compare/v0.0.2...v0.0.3)
