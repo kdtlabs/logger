@@ -3,8 +3,6 @@ import type { LogEntry } from '../../src/types'
 import { describe, expect, mock, test } from 'bun:test'
 import { createAsyncTransport } from '../../src/transports/async'
 
-/* eslint-disable @typescript-eslint/require-await -- AsyncLogTransport requires async signature */
-
 const makeEntry = (overrides: Partial<LogEntry> = {}): LogEntry => ({
     timestamp: Date.now(), level: 30, data: [], metadata: {}, ...overrides,
 })
@@ -515,4 +513,3 @@ describe('createAsyncTransport', () => {
         expect(t1).toHaveBeenCalledTimes(1)
     })
 })
-/* eslint-enable @typescript-eslint/require-await */

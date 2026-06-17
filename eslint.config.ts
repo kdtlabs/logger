@@ -13,4 +13,10 @@ export default kdt({}, [
             'no-console': 'off',
         },
     },
+    {
+        files: ['scripts/**'],
+        rules: {
+            'n/no-process-exit': 'off',
+        },
+    },
 ])
