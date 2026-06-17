@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.0.5
+
+[compare changes](https://github.com/kdtlabs/logger/compare/v0.0.4...v0.0.5)
+
+### 🩹 Fixes
+
+- Skip empty pretty formatter metadata ([5c97dba](https://github.com/kdtlabs/logger/commit/5c97dba))
+
+### ❤️ Contributors
+
+- Diep Dang <kdt310722@gmail.com>
+
 ## v0.0.4
 
 [compare changes](https://github.com/kdtlabs/logger/compare/v0.0.3...v0.0.4)
