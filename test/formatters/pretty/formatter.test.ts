@@ -296,6 +296,21 @@ describe('createPrettyFormatter', () => {
         const resultWithInternal = format(makeEntry({ message: 'msg', metadata: { hostname: 'h', pid: 1, levelName: 'info' } }))
 
         expect(resultNoMeta).toBe(resultWithInternal)
+        expect(resultNoMeta).not.toContain('\n')
+        expect(resultWithInternal).not.toContain('\n')
+    })
+
+    test('does not append empty metadata to data', () => {
+        const format = createPrettyFormatter({ color: false })
+
+        const result = format(makeEntry({
+            data: ['only-data'],
+            message: 'msg',
+            metadata: { hostname: 'h', pid: 1, levelName: 'info' },
+        }))
+
+        expect(result).toContain('only-data')
+        expect(result).not.toContain('{}')
     })
 
     // ── Combined data + metadata ──

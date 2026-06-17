@@ -1,5 +1,5 @@
 import type { LogEntry } from '../../types'
-import { filter, formatDate, humanizeNanoseconds, isString, isSymbol, map, truncateMiddle } from '@kdtlabs/utils'
+import { filter, formatDate, humanizeNanoseconds, isEmptyObject, isString, isSymbol, map, truncateMiddle } from '@kdtlabs/utils'
 import pc from 'picocolors'
 import { LOG_LEVEL_FORMATS } from '../../constants'
 import { accent, muted, text } from '../../styles'
@@ -61,7 +61,9 @@ export function createPrettyFormatter(options: PrettyFormatterOptions = {}) {
     }
 
     const filterMetadata = (meta: Record<string, unknown>) => {
-        return filter(meta, (k) => !isSymbol(k) && !metadataExcludeKeys.has(k))
+        const filteredMeta = filter(meta, (k) => !isSymbol(k) && !metadataExcludeKeys.has(k))
+
+        return isEmptyObject(filteredMeta) ? undefined : filteredMeta
     }
 
     const formatEntryData = (data: unknown[] | undefined, meta: Record<string, unknown> | undefined) => {
