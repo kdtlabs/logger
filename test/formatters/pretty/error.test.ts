@@ -212,6 +212,16 @@ describe('createErrorPretty', () => {
         expect(result).toContain('plain')
     })
 
+    test('preserves nested indentation in formatted data properties', () => {
+        const dataFormatter = () => '  {\n    nested: {\n      value: 1\n    }\n  }'
+        const format = createErrorPretty(noopColors, { dataFormatter })
+        const error = Object.assign(new Error('with nested data'), { nested: { value: 1 } })
+        const result = format(error)
+
+        expect(result).toContain('    nested')
+        expect(result).toContain('      value')
+    })
+
     test('works without dataFormatter', () => {
         const format = createErrorPretty(noopColors)
         const error = Object.assign(new Error('no formatter'), { extra: 'val' })

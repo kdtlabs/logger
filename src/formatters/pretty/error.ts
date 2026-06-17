@@ -60,7 +60,7 @@ export function createErrorPretty(c: Colors, { badge = true, indent: _indent = 2
             const properties = filter(error, (k: string) => k !== 'code' && !hideKeysSet.has(k))
 
             if (!isEmptyObject(properties)) {
-                data = `\n${indent(dataFormatter(properties), indent_, true)}`
+                data = `\n${indent(dataFormatter(properties), indent_)}`
             }
         }
 
