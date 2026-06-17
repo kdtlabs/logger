@@ -255,4 +255,13 @@ describe('createErrorPretty', () => {
 
         expect(result).toContain('with cause')
     })
+
+    test('does not recursively format normalized object cause wrappers', () => {
+        const format = createErrorPretty(noopColors, { maxDepth: 10 })
+        const error = new Error('connection closed', { cause: { type: 'close' } })
+        const result = format(error)
+        const unknownErrorMatches = result.match(/Unknown error/gu) ?? []
+
+        expect(unknownErrorMatches).toHaveLength(0)
+    })
 })
